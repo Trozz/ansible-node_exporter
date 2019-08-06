@@ -36,7 +36,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: trozz.node_exporter }
+         - { role: trozz.ansible_node_exporter }
 
 License
 -------
