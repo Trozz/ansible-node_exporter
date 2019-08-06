@@ -9,7 +9,7 @@
 - name: Install directory is not a directory
   fail:
     msg: While checking the install directory we have found that it is not a directory, please check your variable
-  when: install_dir.stat.exists and install_dir.stat.isdir == false
+  when: install_dir.stat.exists and not install_dir.stat.isdir
 
 - name: Create Install directory
   file:
@@ -23,13 +23,13 @@
 
 - name: Download and Extract Node Exporter
   unarchive:
-    src: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}.tar.gz"
+    src: "{{ node_exporter_download_url }}"
     dest: /tmp
     remote_src: yes
 
 - name: Move Node Exporter to install directory
   copy:
-    src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}/node_exporter"
+    src: "/tmp/{{ node_exporter_file_name }}/node_exporter"
     dest: "{{ node_exporter_install_dir }}"
     mode: '0755'
     owner: root
@@ -38,7 +38,7 @@
 
 - name: Delete downloaded folder
   file:
-    path: "/tmp/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}"
+    path: "/tmp/{{ node_exporter_file_name }}"
     state: absent
 
 - name: "[systemd] install service"

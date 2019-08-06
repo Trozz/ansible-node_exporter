@@ -36,4 +36,4 @@ galaxy_info:
 
   galaxy_tags:
     - prometheus
-    - node_exporter
+    - exporter
