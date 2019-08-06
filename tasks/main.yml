@@ -1,0 +1,91 @@
+---
+# tasks file for node_exporter
+
+- name: Check if Install directory exists.
+  stat:
+    path: "{{ node_exporter_install_dir }}"
+  register: install_dir
+
+- name: Install directory is not a directory
+  fail:
+    msg: While checking the install directory we have found that it is not a directory, please check your variable
+  when: install_dir.stat.exists and install_dir.stat.isdir == false
+
+- name: Create Install directory
+  file:
+    path: "{{ node_exporter_install_dir }}"
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+    recurse: yes
+  when: not install_dir.stat.exists
+
+- name: Download and Extract Node Exporter
+  unarchive:
+    src: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Move Node Exporter to install directory
+  copy:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}/node_exporter"
+    dest: "{{ node_exporter_install_dir }}"
+    mode: '0755'
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: Delete downloaded folder
+  file:
+    path: "/tmp/node_exporter-{{ node_exporter_version }}.{{ ansible_system|lower }}-{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture|lower }}"
+    state: absent
+
+- name: "[systemd] install service"
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_service_mgr == "systemd"
+
+- name: "[systemd] start node_exporter"
+  systemd:
+    state: started
+    name: node_exporter
+    daemon_reload: yes
+    enabled: yes
+  when: ansible_service_mgr == "systemd"
+
+- name: "[sysvinit] install service"
+  template:
+    src: node_exporter.sysvinit.j2
+    dest: /etc/init.d/node_exporter
+    owner: root
+    group: root
+    mode: '0755'
+  when: ansible_service_mgr == "sysvinit"
+
+- name: "[sysvinit] start node_exporter"
+  service:
+    state: started
+    name: node_exporter
+    enabled: yes
+  when: ansible_service_mgr == "sysvinit"
+
+- name: "[upstart] install service"
+  template:
+    src: node_exporter.upstart.j2
+    dest: /etc/init/node_exporter.conf
+    owner: root
+    group: root
+    mode: '0755'
+  when: ansible_service_mgr == "upstart"
+
+- name: "[upstart] start node_exporter"
+  service:
+    state: started
+    name: node_exporter
+    enabled: yes
+  when: ansible_service_mgr == "upstart"

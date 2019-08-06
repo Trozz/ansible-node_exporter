@@ -1,0 +1,18 @@
+---
+# defaults file for node_exporter
+
+node_exporter_version: 0.18.1
+node_exporter_listen_address: ':9100'
+node_exporter_collectors:
+  - filesystem
+  - netdev
+  - cpu
+  - diskstats
+  - mdadm
+  - loadavg
+  - time
+  - uname
+  - logind
+
+
+node_exporter_install_dir: /opt/node_exporter

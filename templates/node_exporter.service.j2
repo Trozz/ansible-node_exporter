@@ -1,0 +1,8 @@
+[Unit]
+Description=Node Exporter
+
+[Service]
+ExecStart={{ node_exporter_install_dir }}/node_exporter --web.listen-address={{ node_exporter_listen_address }} {% for item in node_exporter_collectors %} --collector.{{item}} {% endfor %}
+
+[Install]
+WantedBy=multi-user.target

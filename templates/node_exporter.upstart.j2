@@ -1,0 +1,9 @@
+description  "node_exporter"
+
+start on starting rc RUNLEVEL=[2345]
+stop on starting rc RUNLEVEL=[016]
+
+respawn
+respawn limit unlimited
+
+exec {{ node_exporter_install_dir }}/node_exporter --web.listen-address={{ node_exporter_listen_address }} {% for item in node_exporter_collectors %} --collector.{{item}} {% endfor %}

@@ -1,0 +1,17 @@
+file:
+  /opt/node_exporter/node_exporter:
+    exists: true
+    mode: "0755"
+    owner: root
+    group: root
+    filetype: file
+port:
+  tcp:9100:
+    listening: false
+service:
+  node_exporter:
+    enabled: true
+    running: true
+http:
+  http://localhost:9100/metrics:
+    status: 200
