@@ -37,3 +37,6 @@ galaxy_info:
   galaxy_tags:
     - prometheus
     - exporter
+    - metrics
+    - monitoring
+    - system
